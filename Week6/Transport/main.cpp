@@ -1,12 +1,10 @@
 #include "Request.h"
-#include "RequestsStreamReader.h"
-#include "RequestsJsonReader.h"
-#include "RequestComputeStatVisitor.h"
-#include "RequestComputeBaseVisitor.h"
+#include "JsonRequestsReader.h"
+#include "ComputeStatRequestVisitor.h"
+#include "ComputeBaseRequestVisitor.h"
 
 #include "Response.h"
-#include "ResponsesStreamWriter.h"
-#include "ResponsesJsonWriter.h"
+#include "JsonResponseWriter.h"
 
 #include "TransportDirectory.h"
 #include "TransportDirectoryBuilder.h"
@@ -37,18 +35,18 @@ vector<unique_ptr<IResponse>> ComputeStatRequests(const TransportDirectory &dir,
 }
 
 int main() {
-  //auto requests = RequestsReader::Stream().Read(cin);
   auto requests = RequestsReader::Json().Read(cin);
   
   TransportDirectoryBuilder builder;
   
   ComputeBaseRequests(builder, move(requests.base));
+  
+  builder.SetRoutingSettings(move(requests.routingSettings));
 
-  TransportDirectory directory = builder.GetTransportDirectory();
+  TransportDirectory directory = builder.Build();
 
   auto responses = ::ComputeStatRequests(directory, move(requests.stat));
   
-  //ResponseWriter::Stream().Write(cout, move(responses));
   ResponseWriter::Json().Write(cout, move(responses));
   
   return 0;

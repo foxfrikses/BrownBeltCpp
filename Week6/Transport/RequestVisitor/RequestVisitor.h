@@ -5,6 +5,7 @@
 
 #include "GetBusRequest.h"
 #include "GetStopRequest.h"
+#include "RouteRequest.h"
 
 #include <stdexcept>
 
@@ -14,6 +15,8 @@ public:
   
   virtual void Visit(Requests::AddBus& request) {throw std::runtime_error("Visit AddBus not overridden");}
   virtual void Visit(Requests::AddStop& request) {throw std::runtime_error("Visit AddStop not overridden");}
+  
   virtual void Visit(Requests::GetBus& request) {throw std::runtime_error("Visit GetBus not overridden");}
   virtual void Visit(Requests::GetStop& request) {throw std::runtime_error("Visit GetStop not overridden");}
+  virtual void Visit(Requests::Route& request) {throw std::runtime_error("Visit Route not overridden");}
 };

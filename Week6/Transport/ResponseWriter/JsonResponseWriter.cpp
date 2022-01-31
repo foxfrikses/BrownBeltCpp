@@ -1,6 +1,6 @@
-#include "ResponsesJsonWriter.h"
+#include "JsonResponseWriter.h"
 
-#include "ResponseWriteToJsonVisitor.h"
+#include "WriteToJsonResponseVisitor.h"
 
 using namespace std;
 using namespace Json;

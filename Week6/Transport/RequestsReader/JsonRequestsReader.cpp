@@ -1,5 +1,5 @@
-#include "RequestsJsonReader.h"
-#include "RequestReadFromJsonVisitor.h"
+#include "JsonRequestsReader.h"
+#include "ReadFromJsonRequestVisitor.h"
 
 #include "json.h"
 
@@ -38,11 +38,16 @@ namespace RequestsReader {
     
     auto &base = document.GetRoot().AsMap().at("base_requests");
     auto &stat = document.GetRoot().AsMap().at("stat_requests");
+    auto &routingSettings= document.GetRoot().AsMap().at("routing_settings");
     
     Requests requests;
     
     requests.base = ::Parse(base, IRequest::Type::Base);
     requests.stat = ::Parse(stat, IRequest::Type::Stat);
+    requests.routingSettings = make_unique<RoutingSettings>(RoutingSettings{
+      .busWaitTime = routingSettings.AsMap().at("bus_wait_time").AsInt(),
+      .busVelocity = routingSettings.AsMap().at("bus_velocity").AsDouble()
+    });
     
     return requests;
   }

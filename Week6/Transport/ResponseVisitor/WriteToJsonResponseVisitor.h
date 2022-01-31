@@ -13,5 +13,6 @@ namespace ResponseVisitor
     
     void Visit(Responses::GetBus& response) override;
     void Visit(Responses::GetStop& response) override;
+    void Visit(Responses::Route& response) override;
   };
 }

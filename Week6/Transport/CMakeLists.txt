@@ -6,45 +6,52 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(Transport
         main.cpp
 
+        Libs/graph.h
+        Libs/router.h
+        Libs/range.h
+        Libs/Json/json.h Libs/Json/json.cpp
+
+        RoutingSettings/RoutingSettings.h
+
         Request/Request.h Request/Request.cpp
-        Request/AddBusRequest.h Request/AddBusRequest.cpp
-        Request/AddStopRequest.h Request/AddStopRequest.cpp
-        Request/GetBusRequest.h Request/GetBusRequest.cpp
-        Request/GetStopRequest.h Request/GetStopRequest.cpp
+        Request/Base/AddBusRequest.h Request/Base/AddBusRequest.cpp
+        Request/Base/AddStopRequest.h Request/Base/AddStopRequest.cpp
+        Request/Stat/GetBusRequest.h Request/Stat/GetBusRequest.cpp
+        Request/Stat/GetStopRequest.h Request/Stat/GetStopRequest.cpp
+        Request/Stat/RouteRequest.h Request/Stat/RouteRequest.cpp
 
         RequestsReader/RequestsReader.h
-        RequestsReader/RequestsStreamReader.h RequestsReader/RequestsStreamReader.cpp
-        RequestsReader/RequestsJsonReader.h RequestsReader/RequestsJsonReader.cpp
+        RequestsReader/JsonRequestsReader.h RequestsReader/JsonRequestsReader.cpp
 
         RequestVisitor/RequestVisitor.h
-        RequestVisitor/RequestComputeBaseVisitor.h RequestVisitor/RequestComputeBaseVisitor.cpp
-        RequestVisitor/RequestComputeStatVisitor.h RequestVisitor/RequestComputeStatVisitor.cpp
-        RequestVisitor/RequestReadFromStreamVisitor.h RequestVisitor/RequestReadFromStreamVisitor.cpp
-        RequestVisitor/RequestReadFromJsonVisitor.h RequestVisitor/RequestReadFromJsonVisitor.cpp
+        RequestVisitor/ComputeBaseRequestVisitor.h RequestVisitor/ComputeBaseRequestVisitor.cpp
+        RequestVisitor/ComputeStatRequestVisitor.h RequestVisitor/ComputeStatRequestVisitor.cpp
+        RequestVisitor/ReadFromJsonRequestVisitor.h RequestVisitor/ReadFromJsonRequestVisitor.cpp
 
         Response/Response.h
         Response/GetBusResponse.h Response/GetBusResponse.cpp
         Response/GetStopResponse.h Response/GetStopResponse.cpp
+        Response/RouteResponse.h Response/RouteResponse.cpp
 
         ResponseVisitor/ResponseVisitor.h
-        ResponseVisitor/ResponseWriteToStreamVisitor.h ResponseVisitor/ResponseWriteToStreamVisitor.cpp
-        ResponseVisitor/ResponseWriteToJsonVisitor.h ResponseVisitor/ResponseWriteToJsonVisitor.cpp
+        ResponseVisitor/WriteToJsonResponseVisitor.h ResponseVisitor/WriteToJsonResponseVisitor.cpp
 
         ResponseWriter/ResponseWriter.h
-        ResponseWriter/ResponsesStreamWriter.h ResponseWriter/ResponsesStreamWriter.cpp
-        ResponseWriter/ResponsesJsonWriter.h ResponseWriter/ResponsesJsonWriter.cpp
+        ResponseWriter/JsonResponseWriter.h ResponseWriter/JsonResponseWriter.cpp
 
         StopDistancesManager/StopDistancesManager.h StopDistancesManager/StopDistancesManager.cpp
 
         TransportDirectory/TransportDirectory.h TransportDirectory/TransportDirectory.cpp
         TransportDirectory/TransportDirectoryBuilder.h TransportDirectory/TransportDirectoryBuilder.cpp
-
-        Json/json.h Json/json.cpp)
+        TransportDirectory/TransportDirectoryRouteItems.h TransportDirectory/TransportDirectoryRouteItems.cpp)
 
 
 include_directories(
-        ./json
+        ./Libs
+        ./Libs/Json
         ./Request
+        ./Request/Base
+        ./Request/Stat
         ./RequestVisitor
         ./RequestsReader
         ./Response
@@ -52,5 +59,6 @@ include_directories(
         ./ResponseWriter
         ./StopDistancesManager
         ./TransportDirectory
+        ./RoutingSettings
 )
 

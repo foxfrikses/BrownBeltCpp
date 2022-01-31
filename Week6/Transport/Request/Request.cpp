@@ -4,6 +4,7 @@
 #include "AddStopRequest.h"
 #include "GetBusRequest.h"
 #include "GetStopRequest.h"
+#include "RouteRequest.h"
 
 #include <unordered_map>
 #include <memory>
@@ -26,10 +27,12 @@ namespace Base {
 namespace Stat {
   RequestPtr CreateBusRequest() {return std::make_unique<Requests::GetBus>();}
   RequestPtr CreateStopRequest() {return std::make_unique<Requests::GetStop>();}
+  RequestPtr CreateRouteRequest() {return std::make_unique<Requests::Route>();}
   
   unordered_map<string_view, CreateRequestFunc> RequestCreators {
       {string_view("Bus"), CreateBusRequest},
-      {string_view("Stop"), CreateStopRequest}
+      {string_view("Stop"), CreateStopRequest},
+      {string_view("Route"), CreateRouteRequest}
   };
 }
 

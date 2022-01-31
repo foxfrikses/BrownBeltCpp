@@ -1,4 +1,4 @@
-#include "RequestReadFromJsonVisitor.h"
+#include "ReadFromJsonRequestVisitor.h"
 
 #include <tuple>
 #include <sstream>
@@ -53,6 +53,12 @@ namespace RequestVisitor
   
   void ReadFromJson::Visit(Requests::GetStop& request) {
     request.name = node.AsMap().at("name").AsString();
+    request.id = node.AsMap().at("id").AsInt();
+  }
+  
+  void ReadFromJson::Visit(Requests::Route& request) {
+    request.from = node.AsMap().at("from").AsString();
+    request.to = node.AsMap().at("to").AsString();
     request.id = node.AsMap().at("id").AsInt();
   }
 }

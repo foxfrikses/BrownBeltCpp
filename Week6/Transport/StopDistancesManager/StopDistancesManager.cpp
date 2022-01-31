@@ -30,6 +30,17 @@ double DistanceBetween(Coords fst, Coords scnd) {
   return earthRadiusM * 2 * std::atan2(std::sqrt(a), std::sqrt(1-a));
 }
 
+StopDistancesManager::StopDistancesManager(StopDistancesManager&& other)
+  : coords_(move(other.coords_))
+  , distances_(move(other.distances_))
+{}
+
+StopDistancesManager& StopDistancesManager::operator=(StopDistancesManager&& other) {
+  coords_ = std::move(other.coords_);
+  distances_ = std::move(other.distances_);
+  return *this;
+}
+
 void StopDistancesManager::SetCoords(Stop stop, Coords coords) {
   coords_[stop] = coords;
 }
@@ -39,53 +50,48 @@ void StopDistancesManager::SetDistance(StopVector stopVector, double distance) {
 }
 
 Distance StopDistancesManager::ComputeDistance(StopVector stopVector) {
-  auto [distanceIt, isInserted] = distances_.emplace(stopVector, Distance());
+  auto& distance = distances_.emplace(stopVector, Distance()).first->second;
 
-  if (isInserted || distanceIt->second.ideal == 0.0 || distanceIt->second.real == 0.0) {
+  if (distance.ideal == 0.0 || distance.real == 0.0) {
 
-    auto [distanceItRev, isInsertedRev] = distances_.emplace(StopVector {stopVector.second, stopVector.first}, 
-                                                             Distance {});
+    auto& distanceRev = distances_.emplace(
+      StopVector {.src = stopVector.dst, .dst = stopVector.src},
+      Distance {}
+    ).first->second;
 
-    if (distanceIt->second.ideal == 0.0 || 
-        distanceItRev->second.ideal == 0.0) {
+    if (distance.ideal == 0.0 || distanceRev.ideal == 0.0) {
 
-      auto fstCoordsIt = coords_.find(stopVector.first);
-      auto scndCoordsIt = coords_.find(stopVector.second);
+      auto srcCoordsIt = coords_.find(stopVector.src);
+      auto dstCoordsIt = coords_.find(stopVector.dst);
 
-      if (fstCoordsIt == coords_.end() || scndCoordsIt == coords_.end()) {
+      if (srcCoordsIt == coords_.end() || dstCoordsIt == coords_.end()) {
         throw runtime_error("Cannot compute distance. Stop is not found");
       }
 
-      distanceIt->second.ideal = distanceItRev->second.ideal =
-        ::DistanceBetween(fstCoordsIt->second, scndCoordsIt->second);
+      distance.ideal = distanceRev.ideal =
+        ::DistanceBetween(srcCoordsIt->second, dstCoordsIt->second);
     }
 
-    if (distanceIt->second.real == 0.0 || distanceItRev->second.real == 0.0) {
-
-      if (distanceIt->second.real != 0.0) {
-          distanceItRev->second.real = distanceIt->second.real;
-
-      } else if (distanceItRev->second.real != 0.0) {
-        distanceIt->second.real = distanceItRev->second.real;
-
-      } else {
-        distanceIt->second.real = distanceItRev->second.real = 
-          distanceIt->second.ideal;
-
+    if (distance.real == 0.0 || distanceRev.real == 0.0) {
+      if (distance.real != 0.0) {
+        distanceRev.real = distance.real;
+      }
+      else if (distanceRev.real != 0.0) {
+        distance.real = distanceRev.real;
+      }
+      else {
+        distance.real = distanceRev.real = distance.ideal;
       }
     }
   }
 
-  return distanceIt->second;
+  return distance;
 }
 
 Distance StopDistancesManager::ComputeDistance(const StopRoute& route) {
-  auto prevStopIt = distances_.end();
-
   Distance resultDistance;
   for (size_t i = 1; i < route.size(); ++i) {
     resultDistance += ComputeDistance(StopVector{route[i - 1], route[i]});
   }
-
   return resultDistance;
 }

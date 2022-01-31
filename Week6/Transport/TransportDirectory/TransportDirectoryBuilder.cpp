@@ -6,10 +6,12 @@
 
 using namespace std;
 
-int GetUniqueStrNum(std::vector<std::string_view> strs) {
-  std::sort(strs.begin(), strs.end());
-  strs.erase(std::unique(strs.begin(), strs.end()), strs.end());
-  return static_cast<int>(strs.size());
+namespace {
+  int GetUniqueStrNum(std::vector<std::string_view> strs) {
+    std::sort(strs.begin(), strs.end());
+    strs.erase(std::unique(strs.begin(), strs.end()), strs.end());
+    return static_cast<int>(strs.size());
+  }
 }
 
 void TransportDirectoryBuilder::AddBus(std::string name, std::vector<std::string> stops) {
@@ -35,15 +37,15 @@ void TransportDirectoryBuilder::AddStop(std::string name, double latitude, doubl
 
 void TransportDirectoryBuilder::AddStopDistanses(std::string stop, StopDistances distances) {
   StopDistancesManager::StopVector stops;
-  stops.first = *names_.insert(std::move(stop)).first;
+  stops.src = *names_.insert(std::move(stop)).first;
   
   for (auto& [stop, distance] : distances) {
-    stops.second = *names_.insert(std::move(stop)).first;
+    stops.dst = *names_.insert(std::move(stop)).first;
     distancesManager_.SetDistance(stops, distance);
   }
 }
 
-TransportDirectory TransportDirectoryBuilder::GetTransportDirectory() {
+TransportDirectory TransportDirectoryBuilder::Build() {
   for (auto& [busName, busInfo] : buses_) {
     busInfo.uniqueStops = ::GetUniqueStrNum(busInfo.stops);
     auto distance = distancesManager_.ComputeDistance(busInfo.stops);
@@ -55,5 +57,9 @@ TransportDirectory TransportDirectoryBuilder::GetTransportDirectory() {
     }
   }
 
-  return {std::move(names_), std::move(stops_), std::move(buses_)};
+  return {move(names_), move(stops_), move(buses_), move(distancesManager_), move(routingSettings_)};
+}
+
+void TransportDirectoryBuilder::SetRoutingSettings(std::unique_ptr<RoutingSettings> settings) {
+  routingSettings_ = move(settings);
 }

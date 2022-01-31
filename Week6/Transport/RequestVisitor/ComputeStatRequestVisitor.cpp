@@ -1,10 +1,12 @@
-#include "RequestComputeStatVisitor.h"
+#include "ComputeStatRequestVisitor.h"
 
 #include "GetBusResponse.h"
 #include "GetStopResponse.h"
+#include "RouteResponse.h"
 
 #include "GetBusRequest.h"
 #include "GetStopRequest.h"
+#include "RouteRequest.h"
 
 using namespace std;
 
@@ -55,6 +57,50 @@ namespace RequestVisitor
       response->data->buses.assign(info.buses.begin(), info.buses.end());
     }
     
+    responses.push_back(move(response));
+  }
+  
+  void ComputeStat::Visit(Requests::Route& request) {
+    auto route = directory.GetRoute(RouteRequest{.from = request.from, .to = request.to});
+    
+    auto response = make_unique<Responses::Route>();
+    response->requestId = request.id;
+    
+    if (route) {
+      response->data = Responses::Route::Data();
+      
+      response->data->totalTime = route->totalTime;
+      auto& items = response->data->items;
+      
+      for (auto& routeItem : route->items)  {
+        switch (routeItem->type) {
+          case RouteItem::Type::Bus:
+          {
+            auto& bus = static_cast<RouteItems::Bus&>(*routeItem);
+            
+            auto busItem = make_unique<Responses::RouteItems::Bus>();
+            busItem->bus = bus.bus;
+            busItem->spanCount = bus.spanCount;
+            busItem->time = bus.time;
+            items.push_back(move(busItem));
+            break;
+          }
+          case RouteItem::Type::Wait:
+          {
+            auto& wait = static_cast<RouteItems::Wait&>(*routeItem);
+  
+            auto waitItem = make_unique<Responses::RouteItems::Wait>();
+            waitItem->stopName = wait.stopName;
+            waitItem->time = wait.time;
+            items.push_back(move(waitItem));
+            break;
+          }
+          default:
+            throw runtime_error("Unexpected routeItem::Type");
+        }
+      }
+    }
+  
     responses.push_back(move(response));
   }
 }

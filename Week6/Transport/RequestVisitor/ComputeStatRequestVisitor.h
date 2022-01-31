@@ -21,8 +21,8 @@ namespace RequestVisitor
     std::vector<ResponsePtr> ReleaseResponses();
     
     void Visit(Requests::GetBus& request) override;
-    
-    void Visit(Requests::GetStop&request) override;
+    void Visit(Requests::GetStop& request) override;
+    void Visit(Requests::Route& request) override;
   };
 }
 

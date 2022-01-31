@@ -16,7 +16,9 @@ namespace RequestVisitor
     
     void Visit(Requests::AddBus& request) override;
     void Visit(Requests::AddStop& request) override;
+    
     void Visit(Requests::GetBus& request) override;
     void Visit(Requests::GetStop& request) override;
+    void Visit(Requests::Route& request) override;
   };
 }
